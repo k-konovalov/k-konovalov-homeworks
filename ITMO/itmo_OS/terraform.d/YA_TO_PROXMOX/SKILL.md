@@ -31,7 +31,8 @@ description: Маппинг схемы провайдера Yandex Cloud (yandex
 
 **Ресурсы/типовые конструкции (встречается yandex_* или его proxmox-аналог):**
 `yandex_compute_instance`, `yandex_compute_disk`, `yandex_vpc_subnet`, `yandex_vpc_network`,
-`proxmox_virtual_environment_vm`, `proxmox_virtual_environment_download_file`,
+`proxmox_virtual_environment_vm`, `proxmox_download_file` (и устаревший
+`proxmox_virtual_environment_download_file`),
 упоминание `resources.cores/memory`, `boot_disk`, `network_interface`, `core_fraction`.
 
 Если запрос содержит комбинацию «yandex» + «proxmox» (или их ресурсов) и желание перенести/переписать —

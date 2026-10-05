@@ -80,6 +80,11 @@
       "description": "Образ диска. Источник образа в proxmox — file_id/import_from/clone внутри блока disk."
     },
     {
+      "yandex_command": "resource \"yandex_compute_disk\" \"boot-disk-1\" { type = \"network-hdd\" }   # network-hdd | network-ssd | network-nvme",
+      "proxmox_command": "disk { datastore_id = \"local-lvm\" file_format = \"raw\" | \"qcow2\" ssd = true | false }",
+      "description": "Тип диска. У yandex — тип storage (network-hdd/ssd/nvme); в proxmox это выбор datastore_id + file_format (raw/qcow2) + флаг ssd. Прямой 1:1 нет — подбирается под доступное хранилище."
+    },
+    {
       "yandex_command": "resource \"yandex_vpc_subnet\" \"subnet-1\" { v4_cidr_blocks = [...] }",
       "proxmox_command": "network_device { bridge = \"vmbr0\" } + initialization { ip_config ... }",
       "description": "Прямого ресурса подсети в proxmox НЕТ — см. референс.",
@@ -93,8 +98,8 @@
     },
     {
       "yandex_command": "resource \"yandex_compute_image\" \"img\" { ... }",
-      "proxmox_command": "resource \"proxmox_virtual_environment_download_file\" { ... } | resource \"proxmox_virtual_environment_file\" { ... }",
-      "description": "Образы ОС загружаются в хранилище (datastore) как файлы."
+      "proxmox_command": "resource \"proxmox_download_file\" { ... } | resource \"proxmox_virtual_environment_file\" { ... }",
+      "description": "Образы ОС загружаются в хранилище (datastore) как файлы. proxmox_virtual_environment_download_file — устарел, использовать proxmox_download_file (v1.0 удалит старый)."
     },
     {
       "yandex_command": "boot_disk { initialize_params { image_id = ... } }",

@@ -28,7 +28,7 @@ disk {
 
 1. Скачать cloud-образ в хранилище:
    ```hcl
-   resource "proxmox_virtual_environment_download_file" "debian" {
+   resource "proxmox_download_file" "debian" {
      content_type = "iso"          # или "import" / "vztmpl"
      datastore_id = "local"
      node_name    = "pve"
@@ -49,4 +49,4 @@ disk {
 ## Решение
 
 Для свежей VM без ОС — пустой диск (`disk`). Для запуска с ОС — скачивание образа
-(`proxmox_virtual_environment_download_file`) или клонирование шаблона (`clone`).
+(`proxmox_download_file`; устаревшее имя `proxmox_virtual_environment_download_file` удалят в v1.0) или клонирование шаблона (`clone`).

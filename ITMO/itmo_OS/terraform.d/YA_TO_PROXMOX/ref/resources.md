@@ -90,7 +90,8 @@ resource "proxmox_virtual_environment_vm" "vm-1" {
 
 ## Прочие полезные ресурсы proxmox
 
-- `proxmox_virtual_environment_download_file` — скачивание cloud-образов в хранилище.
+- `proxmox_download_file` — скачивание cloud-образов в хранилище
+  (устаревшее имя `proxmox_virtual_environment_download_file` удалят в v1.0).
 - `proxmox_virtual_environment_clone` — клонирование VM из шаблона.
 - `proxmox_virtual_environment_container` — LXC-контейнеры (аналог лёгких VM).
 - `proxmox_virtual_environment_pool` — пулы.

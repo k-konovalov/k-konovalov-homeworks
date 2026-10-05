@@ -17,12 +17,13 @@ resource "proxmox_virtual_environment_vm" "vm-1001" {
 
   # Start the VM after creation (Yandex default is running).
   started = true
+  on_boot = false
 
   # QEMU agent: allows Terraform to read guest IP addresses
   # (equivalent to how Yandex publishes VM addresses).
-  agent {
-    enabled = true
-  }
+  # agent {
+  #  enabled = true
+  # }
 
   # Equivalent of: resources { cores = 1, memory = 2 }
   cpu {
@@ -47,6 +48,5 @@ resource "proxmox_virtual_environment_vm" "vm-1001" {
   # In Proxmox networking is attached via a bridge (default vmbr0).
   network_device {
     bridge  = "vmbr0"
-    enabled = true
   }
 }
