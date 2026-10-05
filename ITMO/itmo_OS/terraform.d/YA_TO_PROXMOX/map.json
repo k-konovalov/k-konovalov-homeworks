@@ -1,0 +1,112 @@
+{
+  "comment": "Маппинг команд/конструкций провайдера Yandex Cloud на Proxmox VE (bpg/proxmox). Массив объектов: { yandex_command, proxmox_command, description, reference? }. Если прямого аналога нет, поле 'reference' указывает на файл-подход в папке ref/ (один файл = один подход).",
+  "mapping": [
+    {
+      "yandex_command": "provider \"yandex\" { token = ... cloud_id = ... folder_id = ... zone = ... }",
+      "proxmox_command": "provider \"proxmox\" { endpoint = ... username = ... password = ... } | provider \"proxmox\" { endpoint = ... api_token = ... }",
+      "description": "Конфигурация провайдера. В proxmox нет иерархии cloud/folder/zone; аутентификация — через username+password или api_token. insecure=true для self-signed TLS."
+    },
+    {
+      "yandex_command": "resource \"yandex_compute_instance\" \"vm-1\" { ... }",
+      "proxmox_command": "resource \"proxmox_virtual_environment_vm\" \"vm-1\" { ... }",
+      "description": "Виртуальная машина. Основной эквивалент compute-инстанса. Требует node_name."
+    },
+    {
+      "yandex_command": "resources { cores = N }",
+      "proxmox_command": "cpu { cores = N sockets = 1 }",
+      "description": "Количество ядер CPU. В yandex — ядра, в proxmox — ядра на сокет + число сокетов."
+    },
+    {
+      "yandex_command": "resources { core_fraction = P }",
+      "proxmox_command": "cpu { limit = L } / cpu { units = U }",
+      "description": "Долевое выделение CPU (проценты). Прямого «процентного» поля нет — см. референс.",
+      "reference": "ref/cpu-fraction.md"
+    },
+    {
+      "yandex_command": "resources { memory = G }   # ГБ",
+      "proxmox_command": "memory { dedicated = G*1024 }   # МиБ",
+      "description": "Память. ЕДИНИЦЫ РАЗНЫЕ: yandex в ГБ, proxmox в МиБ → умножить на 1024."
+    },
+    {
+      "yandex_command": "boot_disk { disk_id = yandex_compute_disk.boot-disk-1.id }",
+      "proxmox_command": "disk { interface = \"scsi0\" datastore_id = \"local-lvm\" size = 20 }",
+      "description": "Загрузочный диск. В proxmox диск описывается инлайн внутри VM (отдельного ресурса-диска нет)."
+    },
+    {
+      "yandex_command": "secondary_disk { ... }",
+      "proxmox_command": "disk { interface = \"scsi1\" ... }",
+      "description": "Дополнительные диски — повторяющиеся блоки disk (до 31)."
+    },
+    {
+      "yandex_command": "network_interface { subnet_id = yandex_vpc_subnet.subnet-1.id }",
+      "proxmox_command": "network_device { bridge = \"vmbr0\" enabled = true }",
+      "description": "Сеть. В proxmox нет VPC-подсетей; сеть = мост (bridge), обычно vmbr0."
+    },
+    {
+      "yandex_command": "network_interface { nat = true }",
+      "proxmox_command": "network_device { bridge = \"vmbr0\" } + agent { enabled = true }",
+      "description": "NAT/публичный доступ. NAT не является атрибутом сетевого устройства — см. референс.",
+      "reference": "ref/nat.md"
+    },
+    {
+      "yandex_command": "network_interface { ipv4_address = \"10.0.0.5\" }",
+      "proxmox_command": "initialization { ip_config { ipv4 { address = \"10.0.0.5/24\" gateway = \"10.0.0.1\" } } }",
+      "description": "Статический IP задаётся через cloud-init (initialization) в proxmox."
+    },
+    {
+      "yandex_command": "metadata = { \"ssh-keys\" = ..., \"user-data\" = ... }",
+      "proxmox_command": "initialization { user_account { keys = [...] } user_data_file_id = ... }",
+      "description": "Метаданные/cloud-init. В yandex — metadata, в proxmox — блок initialization."
+    },
+    {
+      "yandex_command": "platform_id = \"standard-v2\"",
+      "proxmox_command": "cpu { type = \"x86-64-v2-AES\" }",
+      "description": "Платформа/тип CPU. Семейства yandex не переносятся 1:1 — см. референс.",
+      "reference": "ref/platform-id.md"
+    },
+    {
+      "yandex_command": "allow_stopping_for_update = true",
+      "proxmox_command": "reboot_after_update = true",
+      "description": "Поведение при обновлении ресурса (остановка/перезагрузка VM)."
+    },
+    {
+      "yandex_command": "zone = \"ru-central1-a\"",
+      "proxmox_command": "node_name = \"pve\"",
+      "description": "Размещение VM: в yandex — зона доступности, в proxmox — нода кластера."
+    },
+    {
+      "yandex_command": "resource \"yandex_compute_disk\" \"boot-disk-1\" { size = S image_id = I }",
+      "proxmox_command": "disk { size = S file_id/import_from = I }",
+      "description": "Образ диска. Источник образа в proxmox — file_id/import_from/clone внутри блока disk."
+    },
+    {
+      "yandex_command": "resource \"yandex_vpc_subnet\" \"subnet-1\" { v4_cidr_blocks = [...] }",
+      "proxmox_command": "network_device { bridge = \"vmbr0\" } + initialization { ip_config ... }",
+      "description": "Прямого ресурса подсети в proxmox НЕТ — см. референс.",
+      "reference": "ref/subnet.md"
+    },
+    {
+      "yandex_command": "resource \"yandex_vpc_network\" \"net-1\" { }",
+      "proxmox_command": "network_device { bridge = \"vmbr0\" }",
+      "description": "Аналога сети VPC в proxmox нет; сеть задаётся на уровне моста bridge — см. референс.",
+      "reference": "ref/subnet.md"
+    },
+    {
+      "yandex_command": "resource \"yandex_compute_image\" \"img\" { ... }",
+      "proxmox_command": "resource \"proxmox_virtual_environment_download_file\" { ... } | resource \"proxmox_virtual_environment_file\" { ... }",
+      "description": "Образы ОС загружаются в хранилище (datastore) как файлы."
+    },
+    {
+      "yandex_command": "boot_disk { initialize_params { image_id = ... } }",
+      "proxmox_command": "clone { vm_id = ... } | disk { file_id = ... }",
+      "description": "Запуск из образа/шаблона: скачивание образа или клонирование шаблона — см. референс.",
+      "reference": "ref/image-boot.md"
+    },
+    {
+      "yandex_command": "output { value = yandex_compute_instance.vm-1.network_interface.0.nat_ip_address }",
+      "proxmox_command": "output { value = proxmox_virtual_environment_vm.vm-1.ipv4_addresses[0] }",
+      "description": "Получение IP VM через computed-атрибуты QEMU agent — см. референс.",
+      "reference": "ref/get-ip.md"
+    }
+  ]
+}
