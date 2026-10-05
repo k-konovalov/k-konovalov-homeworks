@@ -1,0 +1,5 @@
+virtual_environment_endpoint      = "https://192.168.174.100:8006/"
+virtual_environment_username      = "root@pam"
+virtual_environment_ssh_username  = "root"
+virtual_environment_api_token     = "terraform@pve!provider=078f887a-8b5c-44f3-8bc1-43d83f5375a6"
+virtual_environment_root_password = "00ztcdby"
